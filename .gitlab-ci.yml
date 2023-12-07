@@ -4,6 +4,6 @@ include:
     file:
       - /templates/common.yml
       - /templates/renovate.yml
-      - /templates/protofiles/build.yml
-      - /templates/protofiles/publish.yml
+      - /templates/protofiles-public/build.yml
+      - /templates/protofiles-public/publish-pypi.yml
 
