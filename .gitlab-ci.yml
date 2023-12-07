@@ -1,0 +1,63 @@
+include:
+  - project: phonexia/dev/technologies/microservices/ci-templates
+    file:
+      - /templates/common.yml
+      - /templates/renovate.yml
+
+variables:
+  FORCE_PUBLISH_DOC:
+    value: ""
+    description: "Trigger upstream pipeline and publish documentation"
+
+##################
+#     Build      #
+##################
+
+.poetry:
+  image: python:3.8
+  before_script:
+    - pip install --upgrade pip
+    - pip install poetry
+
+build:
+  stage: build
+  extends: .poetry
+  variables:
+    PROTO_SOURCE_DIR: "./src"
+    BUILD_DIR: "."
+  before_script:
+    - !reference [.poetry, before_script]
+    - poetry install --no-root -vv
+    - source $(poetry env info --path)/bin/activate
+  script:
+    - python3 -m grpc_tools.protoc -I${PROTO_SOURCE_DIR} --python_out=${BUILD_DIR} --grpc_python_out=${BUILD_DIR} --mypy_grpc_out="aio,readable_stubs:${BUILD_DIR}" --mypy_out=${BUILD_DIR} $(find ./src -name "*.proto" | tr "\n" " ")
+    - poetry version $CI_COMMIT_TAG
+    - poetry build
+  artifacts:
+    paths:
+      - ./phonexia
+      - ./dist
+    expire_in: 1 week
+  rules:
+    - if: $CI_MERGE_REQUEST_ID || $CI_PIPELINE_SOURCE == "schedule"
+      when: never
+    - when: on_success
+
+##################
+#     Publish    #
+##################
+
+publish-package-pypi:
+  stage: "publish"
+  extends: .poetry
+  needs: [build]
+  before_script:
+    - !reference [.poetry, before_script]
+    - poetry config pypi-token.pypi "$PYPI_ACCESS_TOKEN"
+  script:
+    - poetry version $CI_COMMIT_TAG
+    - poetry publish
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: on_success
+    - when: never
