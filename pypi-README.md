@@ -10,6 +10,8 @@ On [this page](https://docs.cloud.phonexia.com/docs/grpc/), you may find a gRPC 
 
 ## Example
 
+Examples require microservice running on local machine at port 8080.
+
 ### Health check
 
 You can invoke `health check` method of any microservice like this:

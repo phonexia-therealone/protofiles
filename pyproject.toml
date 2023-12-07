@@ -20,7 +20,8 @@ include = [
 [tool.poetry.urls]
 Homepage = "https://phonexia.com"
 Issues = "https://phonexia.atlassian.net/servicedesk/customer/portal/15/group/20/create/40"
-# protofiles = "link to protofiles"
+Source = "https://github.com/phonexia-therealone/protofiles"
+Changelog = "https://github.com/phonexia-therealone/protofiles/blob/main/CHANGELOG.md"
 
 [[tool.poetry.source]]
 name = "gitlab"
