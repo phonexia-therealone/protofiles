@@ -22,13 +22,24 @@ from phonexia.grpc.common.health_check_pb2_grpc import HealthStub
 
 
 def health_check(stub: HealthStub):
+    """Create request and call the service.
+    Invoke Info method of the health stub.
+    Args:
+        stub (LicensingStub): Created stub for communication with service.
+    """
     request = HealthCheckRequest()
     response = stub.Check(request)
     print(response)
 
 
 def main():
-    with grpc.insecure_channel("localhost:8080") as channel:
+    """Create a gRPC channel and connect to the service."""
+    with grpc.insecure_channel(target="localhost:8080") as channel:
+        """Create channel to the service.
+        The target parameter is the service address and port.
+        insecure channel is used for connection without TLS.
+        To use SSl/TLS see the grpc_secure_channel function.
+        """
         stub = HealthStub(channel)
         health_check(stub)
 
@@ -52,14 +63,29 @@ from phonexia.grpc.common.licensing_pb2_grpc import LicensingStub
 
 
 def licensing_check(stub: LicensingStub):
+    """Create request and call the service.
+    Invoke Info method of the Licensing stub.
+    Args:
+        stub (LicensingStub): Created stub for communication with service.
+    """
     request = LicensingInfoRequest()
     response = stub.Info(request)
-    print(response)
+    print(
+        f"The license for technology '{response.technology_name}' with model"
+        f" '{response.model_info.name}:{response.model_info.version}'"
+        f" {'is' if response.is_valid else 'was'} valid until {response.valid_until}."
+    )
 
 
 def main():
-    with grpc.insecure_channel("localhost:8080") as channel:
-        stub = LicensingStub(channel)
+    """Create a gRPC channel and connect to the service."""
+    with grpc.insecure_channel(target="localhost:8080") as channel:
+        """Create channel to the service.
+        The target parameter is the service address and port.
+        insecure channel is used for connection without TLS.
+        To use SSl/TLS see the grpc_secure_channel function.
+        """
+        stub = LicensingStub(channel=channel)
         licensing_check(stub)
 
 
@@ -68,4 +94,4 @@ if __name__ == "__main__":
 
 ```
 
-Returned message should contain information about validity until, technology name, model name and it's version.
+Returned message should contain information about technology name, model name with version and time validity of license.
